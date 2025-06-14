@@ -56,7 +56,28 @@ jobs:
       - name: Test Docker Image Cache
         run: |
           docker images
+      # Step 1: SCA
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: ${{ github.repository }}
+          path: "./juice-shop-master/"
+          format: "HTML"
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Upload Test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Depcheck report
+          path: ${{github.workspace}}/reports
+
+      # Step 5: Trivy
       - name: Run Trivy vulnerability scanner
+        if: always()
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: local-scan:latest
@@ -82,7 +103,7 @@ jobs:
         with:
           name: trivy-report
           path: |
-            trivy-report.html
+            trivy-results.html
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
