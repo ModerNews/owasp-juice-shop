@@ -37,7 +37,6 @@ jobs:
             latest
             ${{github.ref_name}}
             ${{github.sha}}
-
       - name: Build Docker image (without pushing)
         id: build
         uses: docker/build-push-action@v6
@@ -49,7 +48,9 @@ jobs:
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ${{ steps.metadata.outputs.tags }}
+          tags: |
+            local-scan:latest
+            ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
 
   container-scan:
@@ -72,7 +73,7 @@ jobs:
           exit-code: "1" # Fail the step if vulnerabilities are found
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always() # Always upload results even if Trivy scan fails
         with:
           sarif_file: "trivy-results.sarif"
