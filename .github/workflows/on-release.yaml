@@ -54,10 +54,13 @@ jobs:
             local-scan:latest
             ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+      - name: Test Docker Image Cache
+        run: |
+          docker images
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          image-ref: local-scan:latest
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
