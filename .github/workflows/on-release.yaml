@@ -211,6 +211,7 @@ jobs:
             echo "Attempt $i: Application not ready yet..."
             sleep 5
           done
+          docker logs testing-container --tail 100
 
       - name: ZAP Scan
         if: always()
